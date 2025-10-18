@@ -23,8 +23,20 @@ func main() {
 	}
 
 	err = DB.AutoMigrate(
+		&model.CanteenComment{},
+		&model.Canteen{},
+		&model.ContentLikeRecord{},
+		&model.ContentLikeSummary{},
+		&model.Dish{},
+		&model.Dish{},
+		&model.FoodSafetyEvent{},
+		&model.Reply{},
 		&model.User{},
+		&model.WindowComment{},
+		&model.WindowDishRelation{},
+		&model.Window{},
 	)
+
 	if err != nil {
 		log.Errorf("Failed to migrate database: %v", err)
 		return

@@ -1,9 +1,11 @@
 package app
 
 import (
-	v1 "SJTU-Canteen-Community/internal/api/v1"
+	v1_b "SJTU-Canteen-Community/internal/api/v1/b"
+	v1_c "SJTU-Canteen-Community/internal/api/v1/c"
 	"fmt"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,11 +24,11 @@ func Start() {
 	}
 
 	r := gin.Default()
-	v1.SetupRoutes(r, DB)
-	if err != nil {
-		log.Errorf("Failed to set up routes: %v", err)
-		return
-	}
+
+	r.Use(sessions.Sessions("JSESSIONID", RedisStore))
+
+	v1_c.SetupCRoutes(r, DB)
+	v1_b.SetupBRoutes(r, DB)
 
 	err = r.Run(fmt.Sprintf(":%d", Conf.App.Port))
 	if err != nil {

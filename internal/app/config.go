@@ -9,6 +9,7 @@ import (
 type Config struct {
 	App      AppConfig      `yaml:"app" mapstructure:"app"`
 	Database DatabaseConfig `yaml:"database" mapstructure:"database"`
+	Redis    RedisConfig    `yaml:"redis" mapstructure:"redis"`
 }
 
 type AppConfig struct {
@@ -18,6 +19,10 @@ type AppConfig struct {
 type DatabaseConfig struct {
 	Driver string `yaml:"driver" mapstructure:"driver"`
 	Source string `yaml:"source" mapstructure:"source"`
+}
+
+type RedisConfig struct {
+	Addr string `yaml:"addr" mapstructure:"addr"`
 }
 
 var Conf *Config
