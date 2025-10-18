@@ -1,0 +1,5 @@
+app:
+  port: 8080
+database:
+  driver: mysql
+  source: test:123456@tcp(127.0.0.1:3306)/canteen_community?charset=utf8mb4&parseTime=True&loc=Local
