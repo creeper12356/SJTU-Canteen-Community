@@ -2,6 +2,7 @@ package repository
 
 import (
 	dto "SJTU-Canteen-Community/internal/dto/b"
+	dto_c "SJTU-Canteen-Community/internal/dto/c"
 	"SJTU-Canteen-Community/internal/model"
 
 	"gorm.io/gorm"
@@ -30,4 +31,23 @@ func (r *WindowDishRelationRepository) MAddDishesToWindow(dto *dto.MAddDishesToW
 		return err
 	}
 	return nil
+}
+
+func (r *WindowDishRelationRepository) ListDishIDsOfWindow(dto dto_c.ListDishesOfWindowRequest) ([]uint, int64, error) {
+	var relations []model.WindowDishRelation
+	result := r.db.Where("window_id = ?", dto.WindowID).Offset(dto.Page * dto.PageSize).Limit(dto.PageSize).Find(&relations)
+
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	var dishIDs []uint
+	for _, relation := range relations {
+		dishIDs = append(dishIDs, relation.DishID)
+	}
+
+	var total int64
+	r.db.Model(&model.WindowDishRelation{}).Where("window_id = ?", dto.WindowID).Count(&total)
+
+	return dishIDs, total, nil
 }

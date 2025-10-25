@@ -7,6 +7,6 @@ type AddWindowRequest struct {
 }
 
 type MAddWindowsToCanteenRequest struct {
-	CanteenID uint               `json:"canteen_id" binding:"required"`
+	CanteenID uint               `binding:"required"`
 	Windows   []AddWindowRequest `json:"windows" binding:"required,dive,required"`
 }

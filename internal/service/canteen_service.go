@@ -1,7 +1,8 @@
 package service
 
 import (
-	dto "SJTU-Canteen-Community/internal/dto/b"
+	dto_b "SJTU-Canteen-Community/internal/dto/b"
+	dto_c "SJTU-Canteen-Community/internal/dto/c"
 	"SJTU-Canteen-Community/internal/model"
 	"SJTU-Canteen-Community/internal/repository"
 	"fmt"
@@ -20,11 +21,11 @@ func NewCanteenService(canteenRepo *repository.CanteenRepository, windowRepo *re
 	return &CanteenService{canteenRepo: canteenRepo, windowRepo: windowRepo, windowDishRelationRepo: windowDishRelationRepo, dishRepo: dishRepo}
 }
 
-func (s *CanteenService) AddCanteen(dto *dto.AddCanteenRequest) (uint, error) {
+func (s *CanteenService) AddCanteen(dto *dto_b.AddCanteenRequest) (uint, error) {
 	return s.canteenRepo.AddCanteen(dto)
 }
 
-func (s *CanteenService) MAddWindowsToCanteen(dto *dto.MAddWindowsToCanteenRequest) ([]model.Window, error) {
+func (s *CanteenService) MAddWindowsToCanteen(dto *dto_b.MAddWindowsToCanteenRequest) ([]model.Window, error) {
 	exists, err := s.canteenRepo.CheckCanteenExists(dto.CanteenID)
 	if err != nil {
 		log.Errorf("Failed to check canteen existence: %v", err)
@@ -37,7 +38,7 @@ func (s *CanteenService) MAddWindowsToCanteen(dto *dto.MAddWindowsToCanteenReque
 	return s.windowRepo.AddWindowsToCanteen(dto)
 }
 
-func (s *CanteenService) MAddDishesToWindow(dto *dto.MAddDishesToWindowRequest) error {
+func (s *CanteenService) MAddDishesToWindow(dto *dto_b.MAddDishesToWindowRequest) error {
 	windowExists, err := s.windowRepo.CheckWindowExists(dto.WindowID)
 	if err != nil {
 		log.Errorf("Failed to check window existence: %v", err)
@@ -63,4 +64,27 @@ func (s *CanteenService) MAddDishesToWindow(dto *dto.MAddDishesToWindowRequest) 
 	}
 
 	return s.windowDishRelationRepo.MAddDishesToWindow(dto)
+}
+
+func (s *CanteenService) ListCanteens(dto *dto_c.ListCanteensRequest) (dto_c.ListCanteensResponse, error) {
+	return s.canteenRepo.ListCanteens(dto)
+}
+
+func (s *CanteenService) ListWindowsOfCanteen(dto *dto_c.ListWindowsOfCanteenRequest) (dto_c.ListWindowsOfCanteenResponse, error) {
+	return s.windowRepo.ListWindowsOfCanteen(dto)
+}
+
+func (s *CanteenService) ListDishesOfWindow(dto *dto_c.ListDishesOfWindowRequest) (dto_c.ListDishesOfWindowResponse, error) {
+	dishIDs, total, err := s.windowDishRelationRepo.ListDishIDsOfWindow(*dto)
+	if err != nil {
+		return dto_c.ListDishesOfWindowResponse{}, err
+	}
+	dishes, err := s.dishRepo.ListDishesByIDs(dishIDs)
+	if err != nil {
+		return dto_c.ListDishesOfWindowResponse{}, err
+	}
+	return dto_c.ListDishesOfWindowResponse{
+		Dishes: dishes,
+		Total:  total,
+	}, nil
 }

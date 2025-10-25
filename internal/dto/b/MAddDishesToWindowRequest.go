@@ -5,6 +5,6 @@ type DishMetadata struct {
 	Price *uint `json:"price"`
 }
 type MAddDishesToWindowRequest struct {
-	WindowID uint           `json:"window_id" binding:"required"`
+	WindowID uint           `binding:"required"`
 	Dishes   []DishMetadata `json:"dishes" binding:"required,dive,required"`
 }

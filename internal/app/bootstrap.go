@@ -1,8 +1,7 @@
 package app
 
 import (
-	v1_b "SJTU-Canteen-Community/internal/api/v1/b"
-	v1_c "SJTU-Canteen-Community/internal/api/v1/c"
+	v1 "SJTU-Canteen-Community/internal/api/v1"
 	"fmt"
 
 	"github.com/gin-contrib/sessions"
@@ -27,8 +26,7 @@ func Start() {
 
 	r.Use(sessions.Sessions("JSESSIONID", RedisStore))
 
-	v1_c.SetupCRoutes(r, DB)
-	v1_b.SetupBRoutes(r, DB)
+	v1.SetupRoutes(r, DB)
 
 	err = r.Run(fmt.Sprintf(":%d", Conf.App.Port))
 	if err != nil {

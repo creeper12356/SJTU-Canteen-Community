@@ -38,3 +38,12 @@ func (r *DishRepository) MCheckAllDishesExist(dishIDs []uint) (bool, error) {
 	}
 	return count == int64(len(dishIDs)), nil
 }
+
+func (r *DishRepository) ListDishesByIDs(dishIDs []uint) ([]model.Dish, error) {
+	var dishes []model.Dish
+	result := r.db.Where("id IN ?", dishIDs).Find(&dishes)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return dishes, nil
+}
