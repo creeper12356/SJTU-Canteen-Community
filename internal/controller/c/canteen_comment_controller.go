@@ -3,6 +3,7 @@ package controller
 import (
 	dto "SJTU-Canteen-Community/internal/dto/c"
 	"SJTU-Canteen-Community/internal/service"
+	"fmt"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -26,13 +27,16 @@ func (cc *CanteenCommentController) AddCanteenComment(c *gin.Context) {
 	}
 
 	session := sessions.Default(c)
-	userID := session.Get("user_id")
-	if userID == nil {
-		c.JSON(401, gin.H{"error": "Not logged in"})
+	userID := session.Get("user_id").(uint)
+
+	canteenIDStr := c.Param("canteen_id")
+	_, err := fmt.Sscanf(canteenIDStr, "%d", &req.CanteenID)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid canteen_id"})
 		return
 	}
 
-	commentID, err := cc.canteenCommentService.AddCanteenComment(&req, userID.(uint))
+	commentID, err := cc.canteenCommentService.AddCanteenComment(&req, userID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

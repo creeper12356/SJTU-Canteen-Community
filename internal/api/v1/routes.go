@@ -3,6 +3,7 @@ package v1
 import (
 	controller_b "SJTU-Canteen-Community/internal/controller/b"
 	controller_c "SJTU-Canteen-Community/internal/controller/c"
+	"SJTU-Canteen-Community/internal/middleware"
 	"SJTU-Canteen-Community/internal/repository"
 	"SJTU-Canteen-Community/internal/service"
 
@@ -58,8 +59,8 @@ func setupCRoutes(r *gin.Engine) {
 		auth.POST("/logout", AuthController.Logout)
 	}
 
-	CommentService := service.NewCommentService(canteenCommentRepo)
-	canteen := c.Group("/canteens")
+	CommentService := service.NewCommentService(canteenCommentRepo, canteenRepo)
+	canteen := c.Group("/canteens", middleware.AuthMiddleware())
 	{
 		CanteenService := service.NewCanteenService(canteenRepo, windowRepo, windowDishRelationRepo, dishRepo)
 		CanteenController := controller_c.NewCanteenController(CanteenService)
