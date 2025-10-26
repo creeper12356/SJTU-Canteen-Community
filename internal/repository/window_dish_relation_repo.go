@@ -51,3 +51,12 @@ func (r *WindowDishRelationRepository) ListDishIDsOfWindow(dto dto_c.ListDishesO
 
 	return dishIDs, total, nil
 }
+
+func (r WindowDishRelationRepository) CheckDishInWindow(windowID uint, dishID uint) (bool, error) {
+	var count int64
+	result := r.db.Model(&model.WindowDishRelation{}).Where("window_id = ? AND dish_id = ?", windowID, dishID).Limit(1).Count(&count)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return count > 0, nil
+}

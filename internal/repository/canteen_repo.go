@@ -33,7 +33,7 @@ func (r *CanteenRepository) AddCanteen(dto *dto_b.AddCanteenRequest) (uint, erro
 
 func (r *CanteenRepository) CheckCanteenExists(canteenID uint) (bool, error) {
 	var count int64
-	result := r.db.Model(&model.Canteen{}).Where("id = ?", canteenID).Count(&count)
+	result := r.db.Model(&model.Canteen{}).Where("id = ?", canteenID).Limit(1).Count(&count)
 	if result.Error != nil {
 		return false, result.Error
 	}

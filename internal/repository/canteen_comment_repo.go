@@ -30,3 +30,16 @@ func (r *CanteenCommentRepository) AddCanteenComment(dto *dto.AddCanteenCommentR
 
 	return canteenComment.ID, nil
 }
+
+func (r *CanteenCommentRepository) CheckCanteenCommentExists(commentID uint, forUpdate bool) (bool, error) {
+	var count int64
+	db := r.db
+	if forUpdate {
+		db = db.Set("gorm:query_option", "FOR UPDATE")
+	}
+	result := db.Model(&model.CanteenComment{}).Where("id = ?", commentID).Limit(1).Count(&count)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return count > 0, nil
+}

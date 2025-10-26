@@ -35,7 +35,7 @@ func (r *WindowRepository) AddWindowsToCanteen(dto *dto.MAddWindowsToCanteenRequ
 
 func (r *WindowRepository) CheckWindowExists(windowID uint) (bool, error) {
 	var count int64
-	result := r.db.Model(&model.Window{}).Where("id = ?", windowID).Count(&count)
+	result := r.db.Model(&model.Window{}).Where("id = ?", windowID).Limit(1).Count(&count)
 	if result.Error != nil {
 		return false, result.Error
 	}

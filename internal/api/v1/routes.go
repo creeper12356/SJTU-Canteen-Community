@@ -17,6 +17,7 @@ var dishRepo *repository.DishRepository
 var windowDishRelationRepo *repository.WindowDishRelationRepository
 var userRepo *repository.UserRepository
 var canteenCommentRepo *repository.CanteenCommentRepository
+var windowCommentRepo *repository.WindowCommentRepository
 
 func initRepos(db *gorm.DB) {
 	canteenRepo = repository.NewCanteenRepository(db)
@@ -25,10 +26,11 @@ func initRepos(db *gorm.DB) {
 	windowDishRelationRepo = repository.NewWindowDishRelationRepository(db)
 	userRepo = repository.NewUserRepository(db)
 	canteenCommentRepo = repository.NewCanteenCommentRepository(db)
+	windowCommentRepo = repository.NewWindowCommentRepository(db)
 
 }
 
-func setupBRoutes(r *gin.Engine) {
+func setupBRoutes(r *gin.Engine, db *gorm.DB) {
 	b := r.Group("/b")
 	canteen := b.Group("/canteens")
 
@@ -48,7 +50,7 @@ func setupBRoutes(r *gin.Engine) {
 	}
 }
 
-func setupCRoutes(r *gin.Engine) {
+func setupCRoutes(r *gin.Engine, db *gorm.DB) {
 	c := r.Group("/c")
 	auth := c.Group("/auth")
 	{
@@ -59,7 +61,8 @@ func setupCRoutes(r *gin.Engine) {
 		auth.POST("/logout", AuthController.Logout)
 	}
 
-	CommentService := service.NewCommentService(canteenCommentRepo, canteenRepo)
+	CommentService := service.NewCommentService(canteenCommentRepo, canteenRepo, windowRepo, windowDishRelationRepo, windowCommentRepo)
+	ContentLikeService := service.NewContentLikeService(db)
 	canteen := c.Group("/canteens", middleware.AuthMiddleware())
 	{
 		CanteenService := service.NewCanteenService(canteenRepo, windowRepo, windowDishRelationRepo, dishRepo)
@@ -68,8 +71,13 @@ func setupCRoutes(r *gin.Engine) {
 		canteen.GET("/:canteen_id/windows", CanteenController.ListWindowsOfCanteen)
 		canteen.GET("/windows/:window_id/dishes", CanteenController.ListDishesOfWindow)
 
-		CanteenCommentController := controller_c.NewCanteenCommentController(CommentService)
-		canteen.GET("/:canteen_id/comments", CanteenCommentController.AddCanteenComment)
+		CanteenCommentController := controller_c.NewCanteenCommentController(CommentService, ContentLikeService)
+		canteen.POST("/:canteen_id/comments", CanteenCommentController.AddCanteenComment)
+		canteen.POST("/comments/:comment_id/like", CanteenCommentController.LikeCanteenComment)
+
+		WindowCommentController := controller_c.NewWindowCommentController(CommentService, ContentLikeService)
+		canteen.POST("/windows/:window_id/comments", WindowCommentController.AddWindowComment)
+		canteen.POST("/windows/comments/:comment_id/like", WindowCommentController.LikeWindowComment)
 	}
 
 }
@@ -77,6 +85,6 @@ func setupCRoutes(r *gin.Engine) {
 func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	initRepos(db)
 
-	setupBRoutes(r)
-	setupCRoutes(r)
+	setupBRoutes(r, db)
+	setupCRoutes(r, db)
 }
